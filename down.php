@@ -8,8 +8,7 @@ $argv = array_values($argv);
 $file_names = json_decode(base64_decode($argv[0], true)); //课程列表
 $folder_name = $argv[1]; //文件夹名称(课程名称)
 $resources = $argv[2]; //资源名称
-$start_num = $argv[3]; //开始数
-$start_num = $start_num ?? 1;
+$start_num = $argv[3] ?? 1; //开始数
 
 $down_domain = 'http://media.coding10.com'; //资源域名
 $ext = '.mp4'; //后缀名
