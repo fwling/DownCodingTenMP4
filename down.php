@@ -1,11 +1,6 @@
 <?php
 /**
- * 启用方式:命令行# php down.php base64_encode(json_encode([课程列表])) 标题 资源名称 开始数
- * 例:php php down.php WyLorqnns7vnu5/mm7Tnvo7lpb3nmoTpmJ/liJciLCLkvb/nlKjmlbDmja7lupPpq
-bHliqjlrp7njrDpmJ/liJfns7vnu58iLCLlpoLkvZXlpITnkIbpmJ/liJfkuK3miafooYzlpLHotKXnmoQgSm9icyIsIuWmguS9lemHjeaWsOaJp+ihjOmYn
-+WIl+S4reeahOWksei0peeahCBKb2Jz77yM5aaC5L2V5Yig6ZmkIEpvYiIsIuS9v+eUqCBSZWRpcyDkvZzkuLrpqbHliqjlrp7njrDpmJ/liJflip/og70iL
-CJSZWRpcyDpqbHliqjpmJ/liJfnmoTnm5HmjqfpnaLmnb8gSG9yaXpvbiIsInBocCBhcnRpc2FuIHF1ZXVlOndvcmsg54mI5pys5beu5byCIl0= Laravel_
-队列 video-laravel-queue-system 1
+ * 启用方式:命令行# php down.php
  */
 require('config.php');
 foreach($data as $argv){
