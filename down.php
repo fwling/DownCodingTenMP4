@@ -3,21 +3,22 @@
  * 启用方式:命令行# php down.php
  */
 require('config.php');
-foreach($data as $argv){
-	//$argv = array_values($argv);
-	//$file_names = json_decode(base64_decode($argv[0], true)); //课程列表
+
+$down_domain = 'http://media.coding10.com'; //资源域名
+$ext = '.mp4'; //后缀名
+$start_num = 1; //开始数
+$min_exec_num = 100; //最小执行次数(最小文件取名范围)
+$max_exec_num = 999; //最大执行次数(最大文件取名范围)
+$dir = __DIR__; //根目录
+
+foreach($data['urls'] as $url){
+	$argv = getResourceInfo($url, 'GET', [], false, [], $data['cookie']);
 	$file_names = $argv['file_names']; //课程列表
 	$folder_name = $argv['folder_name']; //文件夹名称(课程名称)
 	$resources = $argv['resources']; //资源名称
-	$start_num = $argv['start_num'] ?? 1; //开始数
 
-	$down_domain = 'http://media.coding10.com'; //资源域名
-	$ext = '.mp4'; //后缀名
-	$count = count($file_names); //总数目
-	$dir = __DIR__; //根目录
 	$save_path = $dir . '/download/' . $folder_name . '/'; //保存目录
-	$min_exec_num = 100; //最小执行次数(最小文件取名范围)
-	$max_exec_num = 999; //最大执行次数(最大文件取名范围)
+	$count = count($file_names); //总数目
 	$total_exec_num = (($count - $start_num) + 1) * $max_exec_num; //总执行次数
 	$current_exec_num = 0; //当前执行次数
 	$current_progress = 0; //当前进度
@@ -38,6 +39,7 @@ foreach($data as $argv){
 			$file_name = $file_names[$i - 1]; //文件名称
 			$file_link = $down_domain . '/' . $resources_name; //文件资源地址
 			
+			echo '正在加载:' . $file_link . PHP_EOL;
 			$previous_progress = $current_progress;
 			$file = curl($file_link, 'GET'); //下载文件
 			$file_size = getFileSize($file); //获取文件大小
@@ -62,6 +64,61 @@ if(!empty($resources_data['data'])){
 	saveFile(json_encode($resources_data, JSON_UNESCAPED_UNICODE), $save_path, $folder_name . '.txt');
 }
 exit('下载完成,程序结束');
+
+
+
+/**
+ * 获取所需资源信息
+ * @param string $url 播放页面资源地址
+ * @return array
+ */
+function getResourceInfo($url, $method = "GET", $post_data = null, $json = false, $headers = array(), $cookie = '', $debug = false){
+	if(empty($url)){
+		return [];
+	}
+	$html = curl($url, $method, $post_data, $json, $headers, $cookie, $debug);
+	//获取标题
+	preg_match("/<h4[^>]*?>(.*?)<\/h4>/s", $html, $title);
+	$title = $title[1];
+	
+	//获取资源链接
+	preg_match('/<source src="(.*?)"/s', $html, $link);
+	preg_match('/.com\/(.*?).mp4/s', $link[1], $resources);
+	$resources = substr($resources[1], 0, -6);
+	
+	//获取播放列表
+	preg_match("/<table[^>]*?>(.*?)<\/table>/s",$html, $table); //获取table内容
+	preg_match_all('/<a[^>]*>(.*?)<\/a>/is', $table[1], $list); //获取a标签内容
+	//过滤html标签,空格,空白等
+	$list = array_map(function($title){
+		return cutstr_html($title);
+	}, $list[1]);
+	
+	$data = [
+		'file_names' => $list,
+		'folder_name' => $title,
+		'resources' => $resources
+	];
+	return $data;
+}
+
+
+/**
+ * 去除Html所有标签、空格以及空白
+ * @param string $string
+ */
+function cutstr_html($string = ''){
+	$string = strip_tags($string);  
+	$string = trim($string);  
+	$string = str_replace("\t","",$string);  
+	$string = str_replace("\r\n","",$string);  
+	$string = str_replace("\r","",$string);  
+	$string = str_replace("\n","",$string);  
+	$string = str_replace(" ","",$string);  
+	return trim($string);  
+}
+
+
 
 /**
  * 获取文件大小
@@ -105,7 +162,7 @@ function saveFile($file = '', $save_path = './', $filename = ''){
  * @param bool|false $debug  调试开启 默认false
  * @return mixed
  */
-function curl($url, $method = "GET", $post_data = null, $json = false, $headers = array(), $debug = false) {
+function curl($url, $method = "GET", $post_data = null, $json = false, $headers = array(), $cookie = '', $debug = false) {
 	$method = strtoupper($method); //转大写
 	$ci = curl_init();
 	/* Curl settings */
@@ -148,7 +205,9 @@ function curl($url, $method = "GET", $post_data = null, $json = false, $headers 
 				'Content-Length:' . strlen($post_data))
 		);
 	}
-	/*curl_setopt($ci, CURLOPT_COOKIE, $Cookiestr); * *COOKIE带过去** */
+	if(!empty($cookie)){
+		curl_setopt($ci, CURLOPT_COOKIE, $cookie);  /* *COOKIE带过去** */
+	}
 	$response = curl_exec($ci);
 	$requestinfo = curl_getinfo($ci);
 	$http_code = curl_getinfo($ci, CURLINFO_HTTP_CODE);
