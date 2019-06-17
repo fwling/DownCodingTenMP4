@@ -19,28 +19,18 @@ foreach($data['urls'] as $url){
 
 	$save_path = $dir . '/download/' . $folder_name . '/'; //保存目录
 	$count = count($file_names); //总数目
-	$total_exec_num = (($count - $start_num) + 1) * $max_exec_num; //总执行次数
-	$current_exec_num = 0; //当前执行次数
-	$current_progress = 0; //当前进度
-	$previous_progress = 0; //上次进度
 	$resources_data = [
 		'title' => $folder_name,
 		'data' 	=> []
 	]; //资源信息
 	echo '程序加载中...' . PHP_EOL;
 	for($i = $start_num; $i <= $count; $i++){
-		for($j = 100; $j <= 999; $j++){
-			$current_exec_num += 1;
-			$current_progress = round(($current_exec_num / $total_exec_num) * 100); //计算当前进度
-			if($previous_progress != $current_progress){
-				//echo $current_progress . '%' . '   ';
-			}
+		for($j = $min_exec_num; $j <= $max_exec_num; $j++){
 			$resources_name = $resources . '-' . $i . '-' . $j . $ext; //资源名称
 			$file_name = $file_names[$i - 1]; //文件名称
 			$file_link = $down_domain . '/' . $resources_name; //文件资源地址
 			
 			echo '正在加载:' . $resources . '-' . $i . '-' . $j . PHP_EOL;
-			$previous_progress = $current_progress;
 			$file = curl($file_link, 'GET'); //下载文件
 			$file_size = getFileSize($file); //获取文件大小
 			if($file_size > 1){
@@ -52,9 +42,7 @@ foreach($data['urls'] as $url){
 					'file_url' => $file_link
 				];
 				echo $file_name . $ext . ' 下载完成' . PHP_EOL;
-				$total_exec_num = ($total_exec_num - ($max_exec_num - $j)); //总执行次数扣掉跳过次数
-				$$current_exec_num = ($current_exec_num - ($max_exec_num - $j)); //当前执行次数扣掉跳过次数
-				continue;
+				break;
 			}
 		}
 	}
