@@ -39,7 +39,7 @@ foreach($data['urls'] as $url){
 			$file_name = $file_names[$i - 1]; //文件名称
 			$file_link = $down_domain . '/' . $resources_name; //文件资源地址
 			
-			echo '正在加载:' . $file_link . PHP_EOL;
+			echo '正在加载:' . $resources . '-' . $i . '-' . $j . PHP_EOL;
 			$previous_progress = $current_progress;
 			$file = curl($file_link, 'GET'); //下载文件
 			$file_size = getFileSize($file); //获取文件大小
