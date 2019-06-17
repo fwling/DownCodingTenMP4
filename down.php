@@ -39,7 +39,7 @@ foreach($data['urls'] as $url){
 				saveFile($file, $save_path, $file_name_num . '-' . $file_name . $ext); //保存文件
 				$resources_data['data'][$i] = [
 					'resources_name' => $file_name,
-					'file_url' => $file_link
+					'resources_url' => $file_link
 				];
 				echo $file_name . $ext . ' 下载完成' . PHP_EOL;
 				break;
