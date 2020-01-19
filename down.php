@@ -72,7 +72,15 @@ function getResourceInfo($url, $method = "GET", $post_data = null, $json = false
 	//获取资源链接
 	preg_match('/<source src="(.*?)"/s', $html, $link);
 	preg_match('/.com\/(.*?).mp4/s', $link[1], $resources);
-	$resources = substr($resources[1], 0, -6);
+	$resources = explode('-', $resources[1]);
+	$resources_tmp = [];
+	foreach($resources as $resource){
+		if(is_numeric($resource)){
+			break;
+		}
+		$resources_tmp[] = $resource;
+	}
+	$resources = implode('-', $resources_tmp);
 	
 	//获取播放列表
 	preg_match("/<table[^>]*?>(.*?)<\/table>/s",$html, $table); //获取table内容
